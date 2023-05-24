@@ -5,8 +5,7 @@ using Newtonsoft.Json;
 
 Console.WriteLine("======= Приступим =======");
 Console.WriteLine($"{DateTime.Now} - Очищаем таблицы от стрых данных");
-
-using (UserContext dbContext = new()) // чистим все таблицы
+using (UserContext dbContext = new UserContext()) // чистим все таблицы
 {
     dbContext.Remains1Cs.RemoveRange(dbContext.Remains1Cs);
     dbContext.Remains.RemoveRange(dbContext.Remains);
@@ -54,7 +53,16 @@ try
     {
         throw new DirectoryNotFoundException("Директория выгрузки файла не существует");
     }
-       
+
+    Console.WriteLine("Входные данные:");
+    Console.WriteLine("Файл с данными об остатках: Дата создания " + File.GetCreationTime(filePath));
+    Console.WriteLine("Файл с данными о расходе: Дата создания " + File.GetCreationTime(filePathSell));
+    Console.WriteLine("Файл с данными оперативный учет: Дата создания " + File.GetCreationTime(filePathZag));
+    Console.WriteLine("Файл с данными о складах: Дата создания " + File.GetCreationTime(filePathSklad));
+    Console.WriteLine("Файл с данными о расходных документах: Дата создания " + File.GetCreationTime(filePathTDLes));
+    Console.WriteLine("Файл с данными Обобщеные данные из 1с (лесосырьевой): Дата создания " + File.GetCreationTime(directoryPath));
+
+
     Console.WriteLine($"{DateTime.Now} - Собираем остатки по складам из ЕГАИС");
     ParserEGAIS.ParserEgais(filePath);              // в параметры ссылка на файл собираем остатки ЕГАИС
     Console.WriteLine($"{DateTime.Now} - Собираем данные о расходе из ЕГАИС");
@@ -79,5 +87,6 @@ try
 catch (Exception ex)
 {
     Console.WriteLine($"Произошла ошибка: Файл поврежден или не найден. {ex.Message}");
+    // Дополнительная логика обработки ошибки
 }
 Console.ReadKey();
