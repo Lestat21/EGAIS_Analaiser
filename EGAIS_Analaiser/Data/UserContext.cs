@@ -10,7 +10,7 @@ namespace EGAIS_Analaiser.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("data source=DY-SRV-ASUP\\MYDB;Initial Catalog=EGAIS33; Trusted_Connection=True; TrustServerCertificate=True;Integrated Security = true; MultipleActiveResultSets=true;");
+            optionsBuilder.UseSqlServer("data source=DY-SRV-ASUP\\MYDB;Initial Catalog=EGAIS00; Trusted_Connection=True; TrustServerCertificate=True;Integrated Security = true; MultipleActiveResultSets=true;");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,7 +25,6 @@ namespace EGAIS_Analaiser.Data
         public DbSet<Zagotovka> Zagotovkas { get; set; }
         public DbSet<Sklad> Sklads { get; set; }
         public DbSet<TDLes> TDLes { get; set; }
-
 
         //1С
         public DbSet<Remains1C> Remains1Cs { get; set; }

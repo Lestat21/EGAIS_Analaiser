@@ -4,46 +4,42 @@ namespace EGAIS_Analaiser.View
 {
     public class ZogotovkaToConsole
     {
-        public static void ZagotovkaToCW()
+        public static void ZagotovkaToCW() // вывод в консоль таблицы с аналитикой оперативного учета - для тестового отображения информации (потом не нужно)
         {
-            using (var dbContext = new UserContext())
+            using var dbContext = new UserContext();
+
+            var _zagotovkaEGAIS = dbContext.Zagotovkas
+                     .GroupBy(record => record.Forestry)
+                     .Select(group => new
+                     {
+                         WarehouseOwner = group.Key,
+                         TotalVolume = group.Sum(record => record.OperationalAccountingTotal)
+                     })
+                     .OrderBy(result => result.WarehouseOwner);
+
+            var _result1C = dbContext.FullShort1Cs
+                      .Select(record => new
+                      {
+                          Subdivision = record.Subdivision,
+                          Zagotovka = record.Procurement,
+                          Balance = record.Balance,
+                          Sale = record.Sale,
+                          SelfConsumption = record.SelfConsumption,
+                          Processing = record.Processing
+                      }).OrderBy(result => result.Subdivision).ToList();
+
+            Console.WriteLine(new string('=', 38) + " ЗАГОТОВКА " + new string('=', 39));
+            Console.WriteLine("{0,-40} {1,15} {2,15} {3,15}", "Владелец склада", "Заготовка ЕГАИС", "Заготовка 1C", "Расхождение");
+            Console.WriteLine(new string('-', 88));
+
+            foreach (var result in _zagotovkaEGAIS)
             {
-                var zagotovkaEGAIS = dbContext.Zagotovkas
-                         .GroupBy(record => record.Forestry)
-                         .Select(group => new
-                         {
-                             WarehouseOwner = group.Key,
-                             TotalVolume = group.Sum(record => record.OperationalAccountingTotal)
-                         })
-                         .OrderBy(result => result.WarehouseOwner);
+                var r1c = _result1C.FirstOrDefault(p => p.Subdivision == result.WarehouseOwner)?.Zagotovka ?? 0;
 
-                var result1C = dbContext.FullShort1Cs
-                          .Select(record => new
-                          {
-                              Subdivision = record.Subdivision,
-                              Zagotovka = record.Procurement,
-                              Balance = record.Balance,
-                              Sale = record.Sale,
-                              SelfConsumption = record.SelfConsumption,
-                              Processing = record.Processing
-                          }).OrderBy(result => result.Subdivision).ToList();
-
-                Console.WriteLine(new string('=', 38) + " ЗАГОТОВКА " + new string('=', 39));
-                Console.WriteLine("{0,-40} {1,15} {2,15} {3,15}", "Владелец склада", "Заготовка ЕГАИС", "Заготовка 1C", "Расхождение");
-                Console.WriteLine(new string('-', 88));
-
-                foreach (var result in zagotovkaEGAIS)
-                {
-                    var r1c = result1C.FirstOrDefault(p => p.Subdivision == result.WarehouseOwner)?.Zagotovka ?? 0;
-
-                    Console.WriteLine("{0,-40} {1,15} {2,15} {3,15}", result.WarehouseOwner, result.TotalVolume, r1c, r1c - result.TotalVolume);
-                }
-                Console.WriteLine(new string('-', 88));
-                Console.WriteLine("{0,-40} {1,15} {2,15} {3,15}", "", zagotovkaEGAIS.Sum(r => r.TotalVolume), result1C.Sum(r => r.Zagotovka), result1C.Sum(r => r.Zagotovka) - zagotovkaEGAIS.Sum(r => r.TotalVolume));
-
-
-
+                Console.WriteLine("{0,-40} {1,15} {2,15} {3,15}", result.WarehouseOwner, result.TotalVolume, r1c, r1c - result.TotalVolume);
             }
+            Console.WriteLine(new string('-', 88));
+            Console.WriteLine("{0,-40} {1,15} {2,15} {3,15}", "", _zagotovkaEGAIS.Sum(r => r.TotalVolume), _result1C.Sum(r => r.Zagotovka), _result1C.Sum(r => r.Zagotovka) - _zagotovkaEGAIS.Sum(r => r.TotalVolume));
         }
     }
 }
